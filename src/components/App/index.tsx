@@ -7,13 +7,14 @@ import logo from '../../logo.svg';
 import '../../App.css';
 
 import Board from '../Board';
+import Home from '../Home';
 
 import * as ROUTES from '../../routes';
 
 const App: React.FC = () => {
   return (
     <Router>
-      <Route exact path={ROUTES.HOME} component={Board} />
+      <Route exact path={ROUTES.HOME} component={Home} />
       <Route exact path={ROUTES.BOARD} component={Board} />
     </Router>
   );
