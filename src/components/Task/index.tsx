@@ -8,10 +8,12 @@ type ContainerProps = {
 
 const Container = styled.div`
   margin: 8px;
-  border: 1px solid lightgrey;
-  border-radius: 2px;
+  border-radius: 6px;
   transition: background-color 0.2s ease;
-  background-color: ${(props: ContainerProps) => (props.isDragging ? 'lightgreen': 'white')};
+  background-color: ${(props: ContainerProps) => (props.isDragging ? 'rgb(255, 255, 255, 0.8)': 'white')};
+  padding: 12px;
+  font-weight: 400;
+  font-size: 15px;
 `;
 
 class Task extends React.Component<any, any> {

@@ -26,8 +26,42 @@ const uiConfig = {
   ]
 };
 
+const Canvas = styled.div`
+  background-image: url("https://images.unsplash.com/photo-1413977886085-3bbbf9a7cf6e");
+  background-size: cover;
+  height: 100vh;
+  width: 100%;
+  letter-spacing: 1px;
+`;
+
 const Container = styled.div`
-  display: flex
+  display: flex;
+  justify-content: space-evenly;
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 10px;
+`;
+
+const BoardsButton = styled.button`
+  font-family: 'Cabin', 'sans-serif';
+  padding: 13px;
+  background-color: rgb(0, 0, 0, 0.3);
+  transition: background-color 0.2s ease;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  outline: none;
+  
+  :hover {
+    background-color: rgb(0, 0, 0, 0.5)
+  }
 `;
 
 type BoardProps = {
@@ -95,7 +129,7 @@ class Board extends React.Component<BoardProps, BoardState> {
         this.setState({
           title: snapshot.data()!.title
         });
-        console.log(snapshot.data());
+        // console.log(snapshot.data());
       })
   }
   
@@ -106,14 +140,61 @@ class Board extends React.Component<BoardProps, BoardState> {
       .doc(bId)
       .collection('teams')
       .get()
-      .then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-          console.log(doc.data());
-          doc.ref.collection('cards').get().then(function(qS) {
-            qS.forEach(function(d) {
-              console.log(d.data());
-            })
-          })
+      .then((querySnapshot) => {
+        // For each team, get the cards/tasks
+        querySnapshot.forEach((doc) => {
+          const incomingCards: any = {}
+          // console.log(doc.data());
+          
+          // For each card
+          doc.ref.collection('cards').get().then((qS) => {
+            qS.forEach((d) => {
+              // console.log(d.id);
+              // console.log(d.data());
+              incomingCards[d.id] = {
+                id: d.id,
+                content: d.data()!.content,
+                tag: d.data()!.tag
+              }
+            });
+          }).then(() => {
+            this.setState({
+              tasks: {...incomingCards, ...this.state.tasks}
+            });
+            console.log(this.state.tasks);
+            // Update column ordering and cards
+            const newState = {
+              // @ts-ignore
+              ...this.state,
+              columns: {
+                // @ts-ignore
+                ...this.state.columns,
+                'backlog': {
+                  // @ts-ignore
+                  ...this.state.columns['backlog'],
+                  taskIds: doc.data()!.order_backlog
+                },
+                'todo': {
+                  // @ts-ignore
+                  ...this.state.columns['todo'],
+                  taskIds: doc.data()!.order_todo
+                },
+                'doing': {
+                  // @ts-ignore
+                  ...this.state.columns['doing'],
+                  taskIds: doc.data()!.order_doing
+                },
+                'done': {
+                  // @ts-ignore
+                  ...this.state.columns['done'],
+                  taskIds: doc.data()!.order_done
+                }
+              }
+            }
+            
+            console.log(newState);
+            this.setState(newState);
+          });
         })
       })
   }
@@ -194,6 +275,7 @@ class Board extends React.Component<BoardProps, BoardState> {
       };
       
       this.setState(newState);
+      console.log(this.state);
     }
     
   }
@@ -202,7 +284,12 @@ class Board extends React.Component<BoardProps, BoardState> {
     // @ts-ignore
     const { tasks } = this.state;
     return (
-      <div>
+      <Canvas>
+        <TopBar>
+          <BoardsButton>
+            🐪 Boards
+          </BoardsButton>
+        </TopBar>
         <header>{this.state.title} - {this.state.boardId}</header>
         <DragDropContext
           onDragEnd={this.onDragEnd}
@@ -213,8 +300,19 @@ class Board extends React.Component<BoardProps, BoardState> {
             this.state.columnOrder.map(columnId => {
               const column = this.state.columns[columnId];
               // @ts-ignore
-              const tasks = column.taskIds.map(taskId => this.state.tasks[taskId]);
-              
+              column.taskIds.map((taskId) => {
+                // console.log(taskId);
+                // console.log(this.state.tasks);
+                // // @ts-ignore
+                // console.log(Object.keys(this.state.tasks));
+                // console.log(this.state.tasks[taskId]);
+              });
+              // @ts-ignore
+              const tasks = column.taskIds.map((taskId) => this.state.tasks[taskId]);
+              // console.log(column.taskIds);
+              // console.log(tasks);
+              // console.log(this.state.tasks);
+              // console.log("TASKS");
               return (
                 <Column key={column.id} column={column} tasks={tasks} />
               );
@@ -222,7 +320,7 @@ class Board extends React.Component<BoardProps, BoardState> {
             )}
           </Container>
         </DragDropContext>
-      </div>
+      </Canvas>
     );
   }
 }

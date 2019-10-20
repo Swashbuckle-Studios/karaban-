@@ -16,22 +16,22 @@ export const TASKS = [
 export const COLUMNS = {
   'backlog': {
     id: 'backlog',
-    title: 'Backlog',
+    title: '💩 Backlog',
     taskIds: ['b56de068-e34a-4f90-886f-47241f5f27a8', 'cb56de068-e34a-4f90-886f-47241f5f27a8'],
   },
   'todo': {
     id: 'todo',
-    title: 'To do',
+    title: '👍 To do',
     taskIds: [],
   },
   'doing': {
     id: 'doing',
-    title: 'Doing',
+    title: '🚀 Doing',
     taskIds: ['db56de068-e34a-4f90-886f-47241f5f27a8'],
   },
   'done': {
     id: 'done',
-    title: 'Done',
+    title: '🎉 Done',
     taskIds: ['eb56de068-e34a-4f90-886f-47241f5f27a8'],
   },
 }
@@ -41,7 +41,7 @@ export const COLUMN_ORDER = ['backlog', 'todo', 'doing', 'done']
 export const BTASKS = {
   'b56de068-e34a-4f90-886f-47241f5f27a8': {
     id: 'b56de068-e34a-4f90-886f-47241f5f27a8',
-    content: 'Generate using creat-react-app'
+    content: 'Finish coding all of the things here, there, and there'
   },
   'cb56de068-e34a-4f90-886f-47241f5f27a8': {
     id: 'cb56de068-e34a-4f90-886f-47241f5f27a8',
@@ -54,7 +54,11 @@ export const BTASKS = {
   'eb56de068-e34a-4f90-886f-47241f5f27a8': {
     id: 'eb56de068-e34a-4f90-886f-47241f5f27a8',
     content: 'Zenerate using creat-react-app'
-  }
+  },
+  'feb56de068-e34a-4f90-886f-47241f5f27a8': {
+    id: 'eb56de068-e34a-4f90-886f-47241f5f27a8',
+    content: 'Zenerate using creat-react-app'
+  },
 }
 
 export const labelsMap = {

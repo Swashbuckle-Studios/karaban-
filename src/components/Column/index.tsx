@@ -6,16 +6,16 @@ import Task from '../Task';
 
 const Container = styled.div`
   margin: 8px;
-  border: 1px solid lightgrey;
   border-radius: 2px;
-  width: 220px;
-  
+  width: 23%;
+  min-width: 150px;
   display: flex;
   flex-direction: column;
 `;
 
 const Title = styled.h3`
-  padding: 8px;
+  font-size: 24px;
+  margin-bottom: 10px;
 `;
 
 type TaskListProps = {
@@ -25,9 +25,11 @@ type TaskListProps = {
 const TaskList = styled.div`
   padding: 8px;
   transition: background-color 0.2s ease;
-  background-color: ${(props: TaskListProps) => (props.isDraggingOver ? 'skyblue' : 'white')};
-  flex-grow: 1;
+  background-color: ${(props: TaskListProps) => (props.isDraggingOver ? '#d5d5d5' : '#e2e2e2')};
   min-height: 100px;
+  border-radius: 5px;
+  border-top: 5px solid red;
+  letter-spacing: 0px;
 `;
 
 type ColumnProps = {
