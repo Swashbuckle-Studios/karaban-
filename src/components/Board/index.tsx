@@ -39,6 +39,17 @@ const Container = styled.div`
   justify-content: space-evenly;
 `;
 
+const Title = styled.h3`
+  font-size: 24px;
+  margin-bottom: 10px;
+  margin-left: 8px;
+`;
+
+const ColumnColumn = styled.div`
+  width: 23%;
+  min-width: 150px;
+`;
+
 const TopBar = styled.div`
   display: flex;
   justify-content: space-evenly;
@@ -72,7 +83,10 @@ type BoardProps = {
 type BoardState = {
   tasks: any,
   columns: any,
+  columnMeta: any,
   columnOrder: any,
+  teams: any,
+  teamOrder: any,
   title: string,
   isSignedIn: boolean,
   boardId: string
@@ -81,7 +95,10 @@ type BoardState = {
 const INITIAL_STATE = {
   tasks: CONSTANTS.BTASKS,
   columns: CONSTANTS.COLUMNS,
+  columnMeta: CONSTANTS.COLUMN_META,
   columnOrder: CONSTANTS.COLUMN_ORDER,
+  teams: CONSTANTS.TEAMS,
+  teamOrder: CONSTANTS.TEAMS_ORDER,
   title: '',
   isSignedIn: false,
   boardId: ''
@@ -113,7 +130,7 @@ class Board extends React.Component<BoardProps, BoardState> {
     
     // Grab board's info
     this.getBoardMeta(this.props.match.params.boardId);
-    this.getCards(this.props.match.params.boardId);
+    this.initialGetCards(this.props.match.params.boardId);
   }
   
   componentWillUnmount() {
@@ -129,12 +146,12 @@ class Board extends React.Component<BoardProps, BoardState> {
         this.setState({
           title: snapshot.data()!.title
         });
-        // console.log(snapshot.data());
       })
   }
   
-  // Retrieve cards and columns from Firebase
-  getCards = (bId: string): void => {
+  // Initially retrieve cards and columns from Firebase
+  // TODO: Use snapshot to setup hooks for individual teams, columns, and 
+  initialGetCards = (bId: string): void => {
     // const uid = firebase.auth().currentUser!.uid;
     firebase.firestore().collection('boards')
       .doc(bId)
@@ -198,19 +215,6 @@ class Board extends React.Component<BoardProps, BoardState> {
         })
       })
   }
-  
-  // update = (id: any, status: any) => {
-  //   // @ts-ignore
-  //   const { tasks } = this.state;
-  //   // @ts-ignore
-  //   const task = tasks.find(task => task._id === id);
-  //   task.status = status;
-  //   const taskIndex = tasks.indexOf(task);
-  //   const newTasks = update(tasks, {
-  //     [taskIndex]: { $set: task }
-  //   });
-  //   this.setState({ tasks: newTasks });
-  // }
   
   onDragEnd = (result: any): void => {
     const { destination, source, draggableId } = result;
@@ -297,24 +301,23 @@ class Board extends React.Component<BoardProps, BoardState> {
           <Container>
             {
             // @ts-ignore
-            this.state.columnOrder.map(columnId => {
-              const column = this.state.columns[columnId];
-              // @ts-ignore
-              column.taskIds.map((taskId) => {
-                // console.log(taskId);
-                // console.log(this.state.tasks);
-                // // @ts-ignore
-                // console.log(Object.keys(this.state.tasks));
-                // console.log(this.state.tasks[taskId]);
-              });
-              // @ts-ignore
-              const tasks = column.taskIds.map((taskId) => this.state.tasks[taskId]);
-              // console.log(column.taskIds);
-              // console.log(tasks);
-              // console.log(this.state.tasks);
-              // console.log("TASKS");
+            this.state.columnOrder.map(columnType => {
               return (
-                <Column key={column.id} column={column} tasks={tasks} />
+                <ColumnColumn key={columnType}>
+                  <Title>{this.state.columnMeta[columnType]['title']}</Title>
+                  {
+                    // @ts-ignore
+                    this.state.teamOrder.map(teamId => {
+                      const column = this.state.columns[columnType + '-' + teamId];
+                      // @ts-ignore
+                      const tasks = column.taskIds.map((taskId) => this.state.tasks[taskId]);
+                      const tColor = this.state.teams[teamId]['color'];
+                      return (
+                        <Column key={column.id} column={column} tasks={tasks} teamColor={tColor}/>
+                      );
+                    })
+                  }
+                </ColumnColumn>
               );
             }
             )}

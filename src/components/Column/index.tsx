@@ -7,19 +7,15 @@ import Task from '../Task';
 const Container = styled.div`
   margin: 8px;
   border-radius: 2px;
-  width: 23%;
+  width: 100%;
   min-width: 150px;
   display: flex;
   flex-direction: column;
 `;
 
-const Title = styled.h3`
-  font-size: 24px;
-  margin-bottom: 10px;
-`;
-
 type TaskListProps = {
-  isDraggingOver: boolean
+  isDraggingOver: boolean,
+  teamColor: string
 }
 
 const TaskList = styled.div`
@@ -28,13 +24,14 @@ const TaskList = styled.div`
   background-color: ${(props: TaskListProps) => (props.isDraggingOver ? '#d5d5d5' : '#e2e2e2')};
   min-height: 100px;
   border-radius: 5px;
-  border-top: 5px solid red;
+  border-top: 5px solid ${(props: TaskListProps) => (props.teamColor ? props.teamColor : '#e2e2e2')};
   letter-spacing: 0px;
 `;
 
 type ColumnProps = {
   column: any,
-  tasks: any
+  tasks: any,
+  teamColor: string,
 }
 
 type ColumnState = {
@@ -45,7 +42,6 @@ class KanbanColumn extends React.Component<ColumnProps, ColumnState> {
   render() {
     return (
       <Container>
-        <Title>{this.props.column.title}</Title>
         {/* 
          // @ts-ignore */}
         <Droppable
@@ -58,12 +54,16 @@ class KanbanColumn extends React.Component<ColumnProps, ColumnState> {
                 {...provided.droppableProps}
                 // @ts-ignore
                 isDraggingOver={snapshot.isDraggingOver}
+                teamColor={this.props.teamColor}
               >
                   {
                   // @ts-ignore
                   this.props.tasks.map((task, index) => <Task key={task.id} task={task} index={index} />)
                   }
                   {provided.placeholder}
+                {this.props.column.type === "backlog" &&
+                  <p>Add new</p>
+                }
               </TaskList>
           )}
         </Droppable>

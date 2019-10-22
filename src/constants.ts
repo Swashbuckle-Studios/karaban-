@@ -14,29 +14,84 @@ export const TASKS = [
 ];
 
 export const COLUMNS = {
-  'backlog': {
-    id: 'backlog',
-    title: '💩 Backlog',
-    taskIds: ['b56de068-e34a-4f90-886f-47241f5f27a8', 'cb56de068-e34a-4f90-886f-47241f5f27a8'],
+  'backlog-asdfaewfawefa3f': {
+    id: 'backlog-asdfaewfawefa3f',
+    team: 'asdfaewfawefa3f',
+    type: 'backlog',
+    taskIds: ['b56de068-e34a-4f90-886f-47241f5f27a8'],
   },
-  'todo': {
-    id: 'todo',
-    title: '👍 To do',
+  'todo-asdfaewfawefa3f': {
+    id: 'todo-asdfaewfawefa3f',
+    team: 'asdfaewfawefa3f',
+    type: 'todo',
     taskIds: [],
   },
-  'doing': {
-    id: 'doing',
-    title: '🚀 Doing',
-    taskIds: ['db56de068-e34a-4f90-886f-47241f5f27a8'],
+  'doing-asdfaewfawefa3f': {
+    id: 'doing-asdfaewfawefa3f',
+    team: 'asdfaewfawefa3f',
+    type: 'doing',
+    taskIds: [],
   },
-  'done': {
-    id: 'done',
-    title: '🎉 Done',
+  'done-asdfaewfawefa3f': {
+    id: 'done-asdfaewfawefa3f',
+    team: 'asdfaewfawefa3f',
+    type: 'done',
+    taskIds: [],
+  },
+  'backlog-q43gq34gw45ghw4e5g': {
+    id: 'backlog-q43gq34gw45ghw4e5g',
+    team: 'q43gq34gw45ghw4e5g',
+    type: 'backlog',
+    taskIds: [],
+  },
+  'todo-q43gq34gw45ghw4e5g': {
+    id: 'todo-q43gq34gw45ghw4e5g',
+    team: 'q43gq34gw45ghw4e5g',
+    type: 'todo',
     taskIds: ['eb56de068-e34a-4f90-886f-47241f5f27a8'],
+  },
+  'doing-q43gq34gw45ghw4e5g': {
+    id: 'doing-q43gq34gw45ghw4e5g',
+    team: 'q43gq34gw45ghw4e5g',
+    type: 'doing',
+    taskIds: [],
+  },
+  'done-q43gq34gw45ghw4e5g': {
+    id: 'done-q43gq34gw45ghw4e5g',
+    team: 'q43gq34gw45ghw4e5g',
+    type: 'done',
+    taskIds: [],
   },
 }
 
-export const COLUMN_ORDER = ['backlog', 'todo', 'doing', 'done']
+export const TEAMS = {
+  'asdfaewfawefa3f': {
+    name: 'frontend',
+    color: 'green'
+  },
+  'q43gq34gw45ghw4e5g': {
+    name: 'backend',
+    color: 'blue',
+  }
+};
+
+export const TEAMS_ORDER = ['asdfaewfawefa3f', 'q43gq34gw45ghw4e5g'];
+
+export const COLUMN_ORDER = ['backlog', 'todo', 'doing', 'done'];
+export const COLUMN_META = {
+  'backlog': {
+    title: '💩 Backlog',
+  },
+  'todo': {
+    title: '👍 To do',
+  },
+  'doing': {
+    title: '🚀 Doing',
+  },
+  'done': {
+    title: '🎉 Done',
+  }
+}
 
 export const BTASKS = {
   'b56de068-e34a-4f90-886f-47241f5f27a8': {
