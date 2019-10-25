@@ -1,18 +1,3 @@
-export const TEST = 'test';
-
-export const TASKS = [
-  { _id: 1, title: "Firsty Task", status: "backlog" },
-  { _id: 2, title: "Second Task", status: "backlog" },
-  { _id: 3, title: "Third Task", status: "backlog" },
-  { _id: 4, title: "Fourth Task", status: "new" },
-  { _id: 5, title: "Fifth Task", status: "new" },
-  { _id: 6, title: "Sixth Task", status: "wip" },
-  { _id: 7, title: "Seventh Task", status: "review" },
-  { _id: 8, title: "Eighth Task", status: "review" },
-  { _id: 9, title: "Ninth Task", status: "done" },
-  { _id: 10, title: "Tenth Task", status: "done" }
-];
-
 export const COLUMNS = {
   'backlog-asdfaewfawefa3f': {
     id: 'backlog-asdfaewfawefa3f',
@@ -64,18 +49,9 @@ export const COLUMNS = {
   },
 }
 
-export const TEAMS = {
-  'asdfaewfawefa3f': {
-    name: 'frontend',
-    color: 'green'
-  },
-  'q43gq34gw45ghw4e5g': {
-    name: 'backend',
-    color: 'blue',
-  }
-};
+export const TEAMS = {};
 
-export const TEAMS_ORDER = ['asdfaewfawefa3f', 'q43gq34gw45ghw4e5g'];
+export const TEAMS_ORDER = [];
 
 export const COLUMN_ORDER = ['backlog', 'todo', 'doing', 'done'];
 export const COLUMN_META = {

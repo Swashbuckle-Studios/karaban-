@@ -89,7 +89,8 @@ type BoardState = {
   teamOrder: any,
   title: string,
   isSignedIn: boolean,
-  boardId: string
+  boardId: string,
+  homeIndex: number,
 }
 
 const INITIAL_STATE = {
@@ -101,7 +102,8 @@ const INITIAL_STATE = {
   teamOrder: CONSTANTS.TEAMS_ORDER,
   title: '',
   isSignedIn: false,
-  boardId: ''
+  boardId: '',
+  homeIndex: -1
 }
 
 class Board extends React.Component<BoardProps, BoardState> {
@@ -153,6 +155,7 @@ class Board extends React.Component<BoardProps, BoardState> {
   // TODO: Use snapshot to setup hooks for individual teams, columns, and 
   initialGetCards = (bId: string): void => {
     // const uid = firebase.auth().currentUser!.uid;
+    
     firebase.firestore().collection('boards')
       .doc(bId)
       .collection('teams')
@@ -160,25 +163,23 @@ class Board extends React.Component<BoardProps, BoardState> {
       .then((querySnapshot) => {
         // For each team, get the cards/tasks
         querySnapshot.forEach((doc) => {
-          const incomingCards: any = {}
-          // console.log(doc.data());
+          var incomingCards: any = {};
           
           // For each card
           doc.ref.collection('cards').get().then((qS) => {
             qS.forEach((d) => {
-              // console.log(d.id);
-              // console.log(d.data());
               incomingCards[d.id] = {
                 id: d.id,
                 content: d.data()!.content,
-                tag: d.data()!.tag
+                tag: d.data()!.tag,
+                status: d.data()!.status
               }
             });
           }).then(() => {
             this.setState({
               tasks: {...incomingCards, ...this.state.tasks}
             });
-            console.log(this.state.tasks);
+            // console.log(this.state.tasks);
             // Update column ordering and cards
             const newState = {
               // @ts-ignore
@@ -186,38 +187,64 @@ class Board extends React.Component<BoardProps, BoardState> {
               columns: {
                 // @ts-ignore
                 ...this.state.columns,
-                'backlog': {
-                  // @ts-ignore
-                  ...this.state.columns['backlog'],
+                [`backlog-${doc.id}`]: {
+                  id: `backlog-${doc.id}`,
+                  type: 'backlog',
+                  team: doc.id,
                   taskIds: doc.data()!.order_backlog
                 },
-                'todo': {
-                  // @ts-ignore
-                  ...this.state.columns['todo'],
+                [`todo-${doc.id}`]: {
+                  id: `todo-${doc.id}`,
+                  type: 'todo',
+                  team: doc.id,
                   taskIds: doc.data()!.order_todo
                 },
-                'doing': {
-                  // @ts-ignore
-                  ...this.state.columns['doing'],
+                [`doing-${doc.id}`]: {
+                  id: `doing-${doc.id}`,
+                  type: 'doing',
+                  team: doc.id,
                   taskIds: doc.data()!.order_doing
                 },
-                'done': {
-                  // @ts-ignore
-                  ...this.state.columns['done'],
+                [`done-${doc.id}`]: {
+                  id: `done-${doc.id}`,
+                  type: 'done',
+                  team: doc.id,
                   taskIds: doc.data()!.order_done
                 }
-              }
+              },
+              teams: {
+                ...this.state.teams,
+                [doc.id]: {
+                  name: doc.data()!.name,
+                  color: doc.data()!.color
+                }
+              },
+              teamOrder: [...this.state.teamOrder, doc.id],
             }
             
-            console.log(newState);
+            // console.log(newState);
             this.setState(newState);
           });
         })
       })
   }
   
+  onDragStart = (start: any): void => {
+    const homeIndex = this.state.columnOrder.indexOf(this.state.columns[start.source.droppableId]['type']);
+    
+    this.setState({
+      ...this.state,
+      homeIndex: homeIndex
+    });
+  }
+  
   onDragEnd = (result: any): void => {
     const { destination, source, draggableId } = result;
+    
+    this.setState({
+      ...this.state,
+      homeIndex: -1,
+    });
     
     // Dropped outside the droppable areas
     if (!destination) {
@@ -230,13 +257,12 @@ class Board extends React.Component<BoardProps, BoardState> {
         return;
     }
     
-    console.log(source.droppableId);
-    console.log(destination.droppableId);
-    
     const srcColumn = this.state.columns[source.droppableId];
     const dstColumn = this.state.columns[destination.droppableId];
     
+    // Reordering in the same column
     if (srcColumn === dstColumn) {
+      // Update local state
       const newTaskIds = Array.from(srcColumn.taskIds);
       newTaskIds.splice(source.index, 1);
       newTaskIds.splice(destination.index, 0, draggableId);
@@ -252,9 +278,18 @@ class Board extends React.Component<BoardProps, BoardState> {
           ...this.state.columns,
           [newColumn.id]: newColumn,
         }
-      }; 
+      };
       this.setState(newState);
+      
+      // Update Firebase
+      firebase.firestore().collection('boards')
+        .doc(this.props.match.params.boardId)
+        .collection('teams')
+        .doc(srcColumn.team).update({
+          [`order_${srcColumn.type}`]: newTaskIds
+        });
     } else {
+      // Update local state
       const startTaskIds = Array.from(srcColumn.taskIds);
       startTaskIds.splice(source.index, 1);
       const newSrcColumn = {
@@ -276,12 +311,39 @@ class Board extends React.Component<BoardProps, BoardState> {
           [srcColumn.id]: newSrcColumn,
           [dstColumn.id]: newDstColumn,
         },
+        tasks: {
+          ...this.state.tasks,
+          [draggableId]: {
+            ...this.state.tasks[draggableId],
+            'status': dstColumn.type
+          }
+        }
       };
       
       this.setState(newState);
-      console.log(this.state);
+      
+      // Update Firebase
+      firebase.firestore().collection('boards')
+        .doc(this.props.match.params.boardId)
+        .collection('teams')
+        .doc(srcColumn.team).update({
+          [`order_${srcColumn.type}`]: startTaskIds
+        });
+      firebase.firestore().collection('boards')
+        .doc(this.props.match.params.boardId)
+        .collection('teams')
+        .doc(dstColumn.team).update({
+          [`order_${dstColumn.type}`]: dstTaskIds
+        });
+      firebase.firestore().collection('boards')
+        .doc(this.props.match.params.boardId)
+        .collection('teams')
+        .doc(srcColumn.team)
+        .collection('cards')
+        .doc(draggableId).update({
+          ['status']: dstColumn.type
+        });
     }
-    
   }
 
   render() {
@@ -296,12 +358,13 @@ class Board extends React.Component<BoardProps, BoardState> {
         </TopBar>
         <header>{this.state.title} - {this.state.boardId}</header>
         <DragDropContext
+          onDragStart={this.onDragStart}
           onDragEnd={this.onDragEnd}
         >
           <Container>
             {
             // @ts-ignore
-            this.state.columnOrder.map(columnType => {
+            this.state.columnOrder.map((columnType, index) => {
               return (
                 <ColumnColumn key={columnType}>
                   <Title>{this.state.columnMeta[columnType]['title']}</Title>
@@ -309,11 +372,18 @@ class Board extends React.Component<BoardProps, BoardState> {
                     // @ts-ignore
                     this.state.teamOrder.map(teamId => {
                       const column = this.state.columns[columnType + '-' + teamId];
+                      // console.log(column);
                       // @ts-ignore
                       const tasks = column.taskIds.map((taskId) => this.state.tasks[taskId]);
                       const tColor = this.state.teams[teamId]['color'];
                       return (
-                        <Column key={column.id} column={column} tasks={tasks} teamColor={tColor}/>
+                        <Column
+                          key={column.id}
+                          column={column}
+                          tasks={tasks}
+                          teamColor={tColor}
+                          isDroppableDisabled={Math.abs(index - this.state.homeIndex) > 1}
+                        />
                       );
                     })
                   }

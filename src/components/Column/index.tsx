@@ -32,6 +32,7 @@ type ColumnProps = {
   column: any,
   tasks: any,
   teamColor: string,
+  isDroppableDisabled: boolean,
 }
 
 type ColumnState = {
@@ -46,6 +47,8 @@ class KanbanColumn extends React.Component<ColumnProps, ColumnState> {
          // @ts-ignore */}
         <Droppable
           droppableId={this.props.column.id}
+          type={this.props.column.team}
+          isDropDisabled={this.props.isDroppableDisabled}
         >
           {(provided, snapshot) => (
               // @ts-ignore
@@ -58,7 +61,7 @@ class KanbanColumn extends React.Component<ColumnProps, ColumnState> {
               >
                   {
                   // @ts-ignore
-                  this.props.tasks.map((task, index) => <Task key={task.id} task={task} index={index} />)
+                  this.props.tasks.map((task, index) => <Task key={task.id} task={task} index={index} teamColor={'black'}/>)
                   }
                   {provided.placeholder}
                 {this.props.column.type === "backlog" &&
