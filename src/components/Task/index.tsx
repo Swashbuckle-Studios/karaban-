@@ -35,7 +35,7 @@ const Container = styled.div`
   padding: 12px;
   font-weight: 400;
   font-size: 15px;
-  animation: borderBlink ${(props: ContainerProps) => (props.myDelay)}s ease infinite;
+  animation: borderBlink 5s ease infinite;
 `;
 
 class Task extends React.Component<any, any> {
