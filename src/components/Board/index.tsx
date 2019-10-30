@@ -6,7 +6,6 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 
 import Column from '../Column';
-import Item from '../Item';
 
 import * as CONSTANTS from '../../constants';
 // import logo from '../../logo.svg';
