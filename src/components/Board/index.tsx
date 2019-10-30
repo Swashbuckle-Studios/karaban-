@@ -143,16 +143,18 @@ class Board extends React.Component<BoardProps, BoardState> {
   // Retrieve board info from Firebase
   getBoardMeta = (bId: string): void => {
     // const uid = firebase.auth().currentUser!.uid;
+    
+    // Get board meta
     firebase.firestore().collection('boards')
-      .doc(bId).onSnapshot(snapshot => {
-        this.setState({
-          title: snapshot.data()!.title
-        });
-      })
+    .doc(bId).onSnapshot(snapshot => {
+      this.setState({
+        title: snapshot.data()!.title
+      });
+    });
   }
   
   // Initially retrieve cards and columns from Firebase
-  // TODO: Use snapshot to setup hooks for individual teams, columns, and 
+  // TODO: Use snapshot to setup hooks for individual teams, columns, ...
   initialGetCards = (bId: string): void => {
     // const uid = firebase.auth().currentUser!.uid;
     
@@ -179,7 +181,6 @@ class Board extends React.Component<BoardProps, BoardState> {
             this.setState({
               tasks: {...incomingCards, ...this.state.tasks}
             });
-            // console.log(this.state.tasks);
             // Update column ordering and cards
             const newState = {
               // @ts-ignore
@@ -221,10 +222,164 @@ class Board extends React.Component<BoardProps, BoardState> {
               },
               teamOrder: [...this.state.teamOrder, doc.id],
             }
-            
-            // console.log(newState);
-            this.setState(newState);
+            this.setState(newState, () => {
+              this.listenCards(doc.id);
+              this.listenTeams();
+            });
           });
+        });
+      });
+  }
+    
+  listenTeams = (): void => {
+    // Listen for teams realtime changes
+    firebase.firestore().collection('boards')
+    .doc(this.props.match.params.boardId)
+    .collection('teams').onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          // Create new team
+          var newTeamOrder = this.state.teamOrder;
+          if (!newTeamOrder.includes(change.doc.id)) {
+            newTeamOrder.push(change.doc.id);
+          }
+          
+          // Update state
+          this.setState({
+            ...this.state,
+            teams: {
+              ...this.state.teams,
+              [change.doc.id]: {
+                color: change.doc.data()!.color,
+                name: change.doc.data()!.name,
+              }
+            },
+            columns: {
+              ...this.state.columns,
+              [`backlog-${change.doc.id}`]: {
+                ...this.state.columns[`backlog-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_backlog,
+              },
+              [`todo-${change.doc.id}`]: {
+                ...this.state.columns[`todo-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_todo,
+              },
+              [`doing-${change.doc.id}`]: {
+                ...this.state.columns[`doing-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_doing,
+              },
+              [`done-${change.doc.id}`]: {
+                ...this.state.columns[`done-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_done,
+              },
+            },
+            teamOrder: newTeamOrder, //-- for some reason listening for new teams gives error
+          })
+        }
+        else if (change.type === 'modified') {
+          // Update team metadata
+          this.setState({
+            ...this.state,
+            teams: {
+              ...this.state.teams,
+              [change.doc.id]: {
+                color: change.doc.data()!.color,
+                name: change.doc.data()!.name,
+              },
+            },
+            columns: {
+              ...this.state.columns,
+              [`backlog-${change.doc.id}`]: {
+                ...this.state.columns[`backlog-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_backlog,
+              },
+              [`todo-${change.doc.id}`]: {
+                ...this.state.columns[`todo-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_todo,
+              },
+              [`doing-${change.doc.id}`]: {
+                ...this.state.columns[`doing-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_doing,
+              },
+              [`done-${change.doc.id}`]: {
+                ...this.state.columns[`done-${change.doc.id}`],
+                taskIds: change.doc.data()!.order_done,
+              },
+            }
+          })
+        }
+        else if (change.type === 'removed') {
+          // Delete team
+          var newTeams = this.state.teams;
+          delete newTeams[change.doc.id];
+          
+          var newTeamOrder = this.state.teamOrder;
+          const idx = newTeamOrder.indexOf(change.doc.id);
+          if (idx > -1) {
+            newTeamOrder.splice(idx, 1);
+          } else {
+            console.error("Unable to find column ID in column order");
+          }
+          
+          // Update state
+          this.setState({
+            ...this.state,
+            teams: newTeams,
+            teamOrder: newTeamOrder,
+          });
+        }
+      });
+    });
+  }
+  
+  listenCards = (teamId: string): void => {
+    firebase.firestore().collection('boards')
+      .doc(this.props.match.params.boardId)
+      .collection('teams')
+      .doc(teamId)
+      .collection('cards').onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            // Add a new card
+            this.setState({
+              ...this.state,
+              tasks: {
+                ...this.state.tasks,
+                [change.doc.id]: {
+                  content: change.doc.data()!.content,
+                  id: change.doc.id,
+                  status: change.doc.data()!.status,
+                  tag: change.doc.data()!.tag,
+                },
+              },
+            });
+          }
+          else if (change.type === 'modified') {
+            // Change a card's details
+            this.setState({
+              ...this.state,
+              tasks: {
+                ...this.state.tasks,
+                [change.doc.id]: {
+                  content: change.doc.data()!.content,
+                  id: change.doc.id,
+                  status: change.doc.data()!.status,
+                  tag: change.doc.data()!.tag,
+                },
+              },
+            });
+          }
+          else if (change.type === 'removed') {
+            // Remove a card
+            var newTasks = this.state.tasks;
+            delete newTasks[change.doc.id];
+            
+            // Update state
+            this.setState({
+              ...this.state,
+              tasks: newTasks,
+            });
+          }
         })
       })
   }
@@ -236,6 +391,50 @@ class Board extends React.Component<BoardProps, BoardState> {
       ...this.state,
       homeIndex: homeIndex
     });
+  }
+  
+  addTask = (column: any, newTaskText: string): void => {
+    firebase.firestore().collection('boards')
+    .doc(this.props.match.params.boardId)
+    .collection('teams')
+    .doc(column.team)
+    .collection('cards')
+    .add({
+      content: newTaskText,
+      id: 'Generating...',
+      status: 'backlog',
+      tag: 'Generating...'
+    }).then((docRef) => {
+      // @ts-ignore
+      const newTaskOrderArr = this.state.columns[column.id]['taskIds'].concat(docRef.id);
+      firebase.firestore().collection('boards')
+      .doc(this.props.match.params.boardId)
+      .collection('teams')
+      .doc(column.team)
+      .update({
+        order_backlog: newTaskOrderArr
+      })
+    });
+    // TODO: set state temporarily for quick change
+    // this.setState({
+    //   ...this.state,
+    //   columns: {
+    //     ...this.state.columns,
+    //     [column.id]: {
+    //       ...this.state.columns[column.id],
+    //       taskIds: newTaskOrderArr
+    //     },
+    //     tasks: {
+    //       ...this.state.tasks,
+    //       ['newtask'] :{
+    //         content: newTaskText,
+    //         id: 'newtask',
+    //         status: 'backlog',
+    //         tag: 'Generating...'
+    //       }
+    //     }
+    //   }
+    // });
   }
   
   onDragEnd = (result: any): void => {
@@ -372,7 +571,6 @@ class Board extends React.Component<BoardProps, BoardState> {
                     // @ts-ignore
                     this.state.teamOrder.map(teamId => {
                       const column = this.state.columns[columnType + '-' + teamId];
-                      // console.log(column);
                       // @ts-ignore
                       const tasks = column.taskIds.map((taskId) => this.state.tasks[taskId]);
                       const tColor = this.state.teams[teamId]['color'];
@@ -383,6 +581,7 @@ class Board extends React.Component<BoardProps, BoardState> {
                           tasks={tasks}
                           teamColor={tColor}
                           isDroppableDisabled={Math.abs(index - this.state.homeIndex) > 1}
+                          addTask={this.addTask}
                         />
                       );
                     })

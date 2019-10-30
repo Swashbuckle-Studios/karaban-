@@ -6,7 +6,6 @@ type ContainerProps = {
   isDragging: boolean;
   isDragDisabled: boolean;
   isTodo: boolean;
-  myDelay: number;
   teamColor: string;
 }
 
@@ -21,8 +20,8 @@ const Container = styled.div`
   	100% {
   		background-position: 0% 50%;
   	}
-  }    
-
+  }
+  
   margin: 8px;
   border-radius: 6px;
   background: ${(props: ContainerProps) => (
@@ -35,7 +34,9 @@ const Container = styled.div`
   padding: 12px;
   font-weight: 400;
   font-size: 15px;
-  animation: borderBlink 5s ease infinite;
+  animation: ${(props: ContainerProps) => (
+    props.isTodo ? 'borderBlink 5s ease infinite' : ''
+    )};
 `;
 
 class Task extends React.Component<any, any> {
@@ -59,7 +60,6 @@ class Task extends React.Component<any, any> {
             // @ts-ignore
             isDragDisabled={isDragDisabled}
             isTodo={isTodo}
-            myDelay={(Math.random() * 5) + 10}
             teamColor={this.props.teamColor}
           >
             {this.props.task.content}
