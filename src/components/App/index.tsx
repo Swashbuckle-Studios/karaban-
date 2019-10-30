@@ -8,6 +8,8 @@ import '../../App.css';
 
 import Board from '../Board';
 import Home from '../Home';
+// import Dashboard from '../Dashboard';
+import Dashboard from '../Dashboard';
 
 import * as ROUTES from '../../routes';
 
@@ -16,6 +18,7 @@ const App: React.FC = () => {
     <Router>
       <Route exact path={ROUTES.HOME} component={Home} />
       <Route exact path={ROUTES.BOARD} component={Board} />
+      <Route exact path={ROUTES.DASHBOARD} component={Dashboard} />
     </Router>
   );
 }

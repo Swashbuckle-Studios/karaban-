@@ -12,20 +12,6 @@ import * as CONSTANTS from '../../constants';
 // import logo from '../../logo.svg';
 // import '../../App.css';
 
-// Configure Firebase login UI
-const uiConfig = {
-  // Popup signin flow rather than redirect flow.
-  signInFlow: 'popup',
-  // Redirect to /signedIn after sign in is successful. Alternatively you can provide a callbacks.signInSuccess function.
-  signInSuccessUrl: '/signedIn',
-  // We will display Google and Facebook as auth providers.
-  signInOptions: [
-    firebase.auth.EmailAuthProvider.PROVIDER_ID,
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID
-  ]
-};
-
 const Canvas = styled.div`
   background-image: url("https://images.unsplash.com/photo-1413977886085-3bbbf9a7cf6e");
   background-size: cover;
