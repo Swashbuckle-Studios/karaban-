@@ -2,6 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import firebase from 'firebase';
 import { Link } from 'react-router-dom';
+import Modal from 'react-modal';
+// @ts-ignore
+import ReactStepWizard from 'react-step-wizard';
+
+import Step1 from './Newbie/Step1';
 
 const Container = styled.div`
   @keyframes borderBlink {    
@@ -53,7 +58,7 @@ const BoardCard = styled.button`
 `;
 
 type DashboardProps = {
-  
+  history: any,
 }
 
 type DashboardState = {
@@ -61,6 +66,7 @@ type DashboardState = {
   uid: string,
   boardOrder: Array<string>,
   boards: any,
+  newbieModalOpen: boolean,
 }
 
 const INITIAL_STATE = {
@@ -68,6 +74,7 @@ const INITIAL_STATE = {
   uid: '',
   boardOrder: [],
   boards: {},
+  newbieModalOpen: false,
 }
 
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
@@ -82,19 +89,20 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged(
       (user) => {
         if (user == null) {
-          // Show signin dialog
+          this.props.history.push('/');
         } else {
           this.setState({
             isSignedIn: !!user,
             uid: user!.uid,
           });
+          
+          // Get user's boards
           firebase.firestore().collection('users')
             .doc(user.uid)
             .collection('joined_boards').onSnapshot((snapshot) => {
               snapshot.forEach((doc) => {
                 var incomingBoards: Array<string> = this.state.boardOrder;
                 incomingBoards.push(doc.id);
-                console.log(incomingBoards);
                 this.setState({
                   ...this.state,
                   boards: {
@@ -107,30 +115,67 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 });
               });
           });
+          
+          // Get user metadata
+          firebase.firestore().collection('users')
+            .doc(user.uid).get().then((doc) => {
+              if (doc.data()!.newbie) {
+                this.setState({
+                  ...this.state,
+                  newbieModalOpen: true,
+                })
+              }
+            });
         }
       }
     );
   }
   
+  openNewbieModal = (): void => {
+    this.setState({
+      ...this.state,
+      newbieModalOpen: true,
+    });
+  }
+  
+  closeNewbieModal = (): void => {
+    this.setState({
+      ...this.state,
+      newbieModalOpen: false,
+    })
+  }
+  
   render() {
     // console.log(firebase.auth().currentUser!.uid);
     return (
-      <Container>
-        <h1>{this.state.uid}'s Boards</h1>
-        <BoardCardContainer>
-          {
-            this.state.boardOrder.map((bId) => {
-              return (
-                <Link to="/board/myid" key={bId}>
-                  <BoardCard>
-                    {bId}
-                  </BoardCard>
-                </Link>
-              );
-            })
-          }
-        </BoardCardContainer>
-      </Container>
+      <div>
+        <Container>
+          <h1>{this.state.uid}'s Boards</h1>
+          <BoardCardContainer>
+            {
+              this.state.boardOrder.map((bId) => {
+                return (
+                  <Link to={`/board/${bId}`} key={bId}>
+                    <BoardCard>
+                      {bId}
+                    </BoardCard>
+                  </Link>
+                );
+              })
+            }
+          </BoardCardContainer>
+        </Container>
+        
+        <Modal
+          isOpen={this.state.newbieModalOpen}
+          onRequestClose={this.closeNewbieModal}
+          contentLabel="Welcome to Karaban!"
+        >
+          <ReactStepWizard>
+            <Step1 uid={this.state.uid} />
+          </ReactStepWizard>
+        </Modal>
+      </div>
     );
   }
 }
