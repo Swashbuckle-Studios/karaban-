@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Droppable } from 'react-beautiful-dnd';
 import TextareaAutosize from 'react-textarea-autosize';
+import Button from '@material-ui/core/Button';
 
 import Task from '../Task';
 
@@ -86,6 +87,7 @@ const NewCardInput = styled(TextareaAutosize)`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-top: 5px;
 `;
 
 const CancelButton = styled.button`
@@ -183,11 +185,18 @@ class KanbanColumn extends React.Component<ColumnProps, ColumnState> {
                       placeholder={potentialTasks[Math.floor(Math.random() * potentialTasks.length)]}
                     />
                     <ButtonContainer>
-                      <CancelButton onClick={this.cancelCreationEditor}>Cancel</CancelButton>
-                      <SubmitButton onClick={() => {
-                        this.props.addTask(this.props.column, this.state.addingNewText);
-                        this.cancelCreationEditor();
-                      }}>Add</SubmitButton>
+                      <Button
+                        onClick={this.cancelCreationEditor}>
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          this.props.addTask(this.props.column, this.state.addingNewText);
+                          this.cancelCreationEditor();
+                        }}
+                      >
+                        Add
+                      </Button>
                     </ButtonContainer>
                   </CardyContainer>
                 }

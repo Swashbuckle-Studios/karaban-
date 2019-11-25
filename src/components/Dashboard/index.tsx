@@ -5,8 +5,12 @@ import { Link } from 'react-router-dom';
 import Modal from 'react-modal';
 // @ts-ignore
 import ReactStepWizard from 'react-step-wizard';
+import SimpleDialog from '@material-ui/core/Dialog'
 
 import Step1 from './Newbie/Step1';
+import Step2 from './Newbie/Step2';
+
+import NewBoardForm from './NewBoardForm';
 
 const Container = styled.div`
   @keyframes borderBlink {    
@@ -64,17 +68,21 @@ type DashboardProps = {
 type DashboardState = {
   isSignedIn: boolean,
   uid: string,
+  username: string,
   boardOrder: Array<string>,
   boards: any,
   newbieModalOpen: boolean,
+  createBoardModalOpen: boolean,
 }
 
 const INITIAL_STATE = {
   isSignedIn: false,
   uid: '',
+  username: '',
   boardOrder: [],
   boards: {},
   newbieModalOpen: false,
+  createBoardModalOpen: false,
 }
 
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
@@ -100,6 +108,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           firebase.firestore().collection('users')
             .doc(user.uid)
             .collection('joined_boards').onSnapshot((snapshot) => {
+              this.setState({
+                ...this.state,
+                boards: {},
+              });
               snapshot.forEach((doc) => {
                 var incomingBoards: Array<string> = this.state.boardOrder;
                 incomingBoards.push(doc.id);
@@ -118,12 +130,19 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           
           // Get user metadata
           firebase.firestore().collection('users')
-            .doc(user.uid).get().then((doc) => {
-              if (doc.data()!.newbie) {
-                this.setState({
-                  ...this.state,
-                  newbieModalOpen: true,
-                })
+            .doc(user.uid).onSnapshot((doc: any) => {
+              if (doc.exists) {
+                if (doc.data()!.newbie) {
+                  this.setState({
+                    ...this.state,
+                    newbieModalOpen: true,
+                  })
+                } else {
+                  this.setState({
+                    ...this.state,
+                    username: doc.data()!.username,
+                  })
+                }
               }
             });
         }
@@ -145,12 +164,26 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     })
   }
   
+  openCreateBoardModal = (): void => {
+    this.setState({
+      ...this.state,
+      createBoardModalOpen: true,
+    });
+  }
+  
+  closeCreateBoardModal = (): void => {
+    this.setState({
+      ...this.state,
+      createBoardModalOpen: false,
+    })
+  }
+  
   render() {
     // console.log(firebase.auth().currentUser!.uid);
     return (
       <div>
         <Container>
-          <h1>{this.state.uid}'s Boards</h1>
+          <h1>{this.state.username}'s Boards</h1>
           <BoardCardContainer>
             {
               this.state.boardOrder.map((bId) => {
@@ -163,6 +196,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 );
               })
             }
+            <BoardCard onClick={this.openCreateBoardModal}>
+              Create new
+            </BoardCard>
           </BoardCardContainer>
         </Container>
         
@@ -173,8 +209,19 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         >
           <ReactStepWizard>
             <Step1 uid={this.state.uid} />
+            <Step2 closeModal={this.closeNewbieModal} />
           </ReactStepWizard>
         </Modal>
+        
+        <SimpleDialog
+          open={this.state.createBoardModalOpen}
+          onClose={this.closeCreateBoardModal}
+        >
+          <NewBoardForm
+            uid={this.state.uid}
+            closeDialog={this.closeCreateBoardModal}
+          />
+        </SimpleDialog>
       </div>
     );
   }

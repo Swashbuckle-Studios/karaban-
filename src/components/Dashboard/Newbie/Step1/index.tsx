@@ -13,11 +13,13 @@ type Step1Props = {
 }
 
 type Step1State = {
-  activeUsername: string
+  activeUsername: string,
+  usernameTaken: boolean,
 }
 
 const INITIAL_STATE = {
   activeUsername: '',
+  usernameTaken: false
 }
 
 class Step1 extends React.Component<Step1Props, Step1State> {
@@ -32,7 +34,21 @@ class Step1 extends React.Component<Step1Props, Step1State> {
     this.setState({
       ...this.state,
       activeUsername: event.target.value,
-    })
+    });
+    firebase.firestore().collection('usernames')
+      .doc(event.target.value).get().then((doc) => {
+        if (doc.exists) {
+          this.setState({
+            ...this.state,
+            usernameTaken: true,
+          });
+        } else {
+          this.setState({
+            ...this.state,
+            usernameTaken: false,
+          });
+        }
+      });
   }
   
   changeUsername = (): void => {
