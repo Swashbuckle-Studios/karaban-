@@ -1,3 +1,4 @@
+<!-- omit in toc -->
 # 🐪 kbweb
 
 > Karaban Web Frontend
@@ -16,17 +17,23 @@
 [![Email](https://img.shields.io/badge/email-buck-blue.svg?longCache=true)](mailto:buck@bucktower.net)
 ![Maintenance](https://img.shields.io/maintenance/yes/2019.svg?style=flat-square)
 
-![Screenshot](https://i.imgur.com/TxQTF9F.png)
+![Screenshot](https://i.imgur.com/WSahR2w.jpg)
 
 ---
 
+<!-- omit in toc -->
 ## Table of Contents
 
-- [Installation](#installation)
 - [Features](#features)
 - [Documentation](#documentation)
-- [Tests](#tests)
+- [~~Tests~~ Work In Progress](#tests-work-in-progress)
+  - [Running unit tests](#running-unit-tests)
+  - [Running end-to-end tests](#running-end-to-end-tests)
+  - [Linting](#linting)
 - [Contributing](#contributing)
+  - [Step 1](#step-1)
+  - [Step 2](#step-2)
+  - [Step 3](#step-3)
 - [Deployment](#deployment)
 - [Team](#team)
 - [FAQ](#faq)
@@ -79,7 +86,7 @@ We use the [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) 
 
 ### Step 1
 
-- 👯 Click this button:
+- 👯 Click this button that you can always find up top:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/swshbkl/kbweb)
 
@@ -113,6 +120,7 @@ Switched to a new branch "myfeature"
 
 - **HACK AWAY!** 🔨🔨🔨
 - 📦 Feel free to push to your feature branch whenever
+- 👀 You can see your changes hot-reloaded by Gitpod by going to the `Open Ports` tab of the terminal window and opening the Preview or Browser for `3000`
 
 ### Step 3
 
@@ -161,7 +169,7 @@ We value quickness and agility over circumspect and slow-moving. Only non-produc
 
 Deployed to [`karaban.dev`](https://karaban.dev) is triggered manually from the container registered from the `master` branch upon proper tagging and merging and (hopefully) after testing.
 
-Don't fuck up.
+Don't fuck up and we'll be fine 🤗
 
 ---
 

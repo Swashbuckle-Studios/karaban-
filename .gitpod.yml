@@ -9,3 +9,6 @@ ports:
 tasks:
 - init: npm i # runs during prebuild
   command: npm start
+vscode:
+  extensions:
+    - yzhang.markdown-all-in-one@2.5.1:pi1L2QAYUr3BuRSqfmxoXg==
