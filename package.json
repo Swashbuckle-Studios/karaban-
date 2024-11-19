@@ -14,7 +14,7 @@
     "@types/react-router-dom": "^4.3.5",
     "@types/react-textarea-autosize": "^4.3.4",
     "@types/styled-components": "^4.1.19",
-    "firebase": "^6.6.0",
+    "firebase": "^10.9.0",
     "immutability-helper": "^3.0.1",
     "react": "^16.9.0",
     "react-beautiful-dnd": "^11.0.5",
